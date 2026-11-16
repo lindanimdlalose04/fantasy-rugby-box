@@ -13,11 +13,24 @@ release also records the date of the data snapshot it was built against.
 
 - Repository scaffold, documentation and decision records
 - `src/rb.py`, the parquet store reader, carried over unchanged from RugbyBox
+- `src/rules.py`, the scoring system and squad rules as a validated object,
+  with point values tuned against 18 499 real appearances so that every
+  position is worth picking
 
-### Open decisions
+### Decided
 
-- Where player prices come from (`docs/decisions/0002`)
-- Which scoring system to target (`docs/decisions/0003`)
+- This project uses its own scoring system rather than a published game's
+  (`docs/decisions/0003`)
+- Prices are modelled from projected points, with a CSV input kept as the
+  interface so another source can be swapped in (`docs/decisions/0002`)
+- Corrupted source fixtures are rejected at fixture level on two signatures,
+  costing about 7% of appearances (`docs/decisions/0004`)
+
+### Found
+
+- Two undocumented corruptions in the `rugbydata` store: per-minute rates in
+  count columns on 7 fixtures, and `line_breaks` duplicated from
+  `turnovers_won` on 153 fixtures. See `docs/data.md`.
 
 ## Planned
 

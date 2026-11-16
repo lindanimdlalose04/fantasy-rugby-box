@@ -1,6 +1,6 @@
 # 2. Where player prices come from
 
-- **Status:** open, blocking the optimiser
+- **Status:** accepted, modelled from projected points
 - **Date:** 2026-11-16
 
 ## Context
@@ -37,17 +37,34 @@ part of the system can be built and tested against them.
 
 ## Decision
 
-Not yet made. It depends on which fantasy game this targets, which is
-decision 3.
+Follows from decision 3. Since this project defines its own scoring system,
+there is no external game whose prices could be scraped, so prices are
+**modelled from projected points**.
 
-The shape that keeps the options open: treat prices as an **input with a
-documented CSV format**, with a modelled fallback so the project runs
-without them. Whichever source is chosen later writes that CSV, and nothing
-downstream needs to know where the numbers came from.
+Prices are still treated as an input with a documented CSV format, and the
+modelled prices are simply the supplied default. Nothing downstream knows
+where a price came from, so pointing this at a real game later means writing
+that CSV from another source and changing nothing else.
+
+A price has to rise faster than points, or the optimiser simply buys the
+best players and the budget never binds. A convex mapping from projected
+points to price is what makes the choice interesting, and the exact shape is
+a parameter to be tuned so that the budget is a real constraint rather than
+decoration. That tuning belongs with the pricing model, not here.
 
 ## Consequences
 
-Until this is settled, any figure the optimiser produces is a demonstration
-rather than advice. That must be stated plainly wherever results are shown,
-not buried in a caveat, because a squad list looks equally authoritative
-whether or not its prices are real.
+The optimiser's answers are not advice for any real competition, and nothing
+in the interface may imply otherwise. A squad list looks equally
+authoritative whether or not its prices are real, so this has to be stated
+where the results are shown rather than buried in a caveat.
+
+In exchange the project has no external dependency, no scraper to maintain,
+no terms of service to work within, and can be demonstrated against any
+historical season at any time of year.
+
+Prices being derived from the same projections the optimiser maximises
+creates a circularity worth watching: a projection error moves a player's
+price and his attractiveness in the same direction, which could cancel out
+and make the budget constraint toothless. Check that the chosen squad is
+genuinely budget-constrained, rather than assuming it.

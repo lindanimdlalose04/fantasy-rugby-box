@@ -46,7 +46,40 @@ What the store does **not** hold: fantasy prices, fantasy points, ownership
 percentages, or an injury list. See
 `docs/decisions/0002-where-player-prices-come-from.md`.
 
-## Two problems to expect
+## Corrupted fixtures, and how they are rejected
+
+Two corruptions were found in the source while setting the scoring values.
+Neither is announced anywhere, and both inflate exactly the statistics a
+fantasy scoring system pays most for. The cleaning stage rejects whole
+fixtures on two signatures, and reports how many each rule caught.
+
+**A count column holding a per-minute rate.** 57 appearances across 7
+fixtures. The tell is a non-integer value in a count column, for example
+`tackles_made` of 0.08. On those fixtures the try counts are also nonsense:
+one player credited with 36 tries alongside one metre carried.
+
+**One column copied over another.** 153 fixtures where more than a quarter of
+appearances have `line_breaks` exactly equal to `turnovers_won` at a non-zero
+value. Across the whole dataset 22.5% of non-zero pairs are identical, far
+above what independence would give, and the values run implausibly high: 24
+of each in one appearance against a 99th percentile of 10 for both.
+
+The second is the more dangerous. It is not obviously wrong on inspection,
+and because both columns score 4 points each, one corrupted value is paid for
+twice. Before the guard, the highest scoring appearance in the data was a
+player credited with 24 line breaks and 24 turnovers, worth 192 of his 253
+points.
+
+Together these reject about 7% of appearances. Removing them tightened the
+spread of points within each position from 0.72 to 0.85 of the mean down to
+0.54 to 0.71, which is what you would expect if the rejected rows were noise.
+See `docs/decisions/0004-guarding-against-corrupted-source-rows.md`.
+
+These are heuristics fitted to two corruptions that happen to be visible.
+There may be others that are not. Trace any remarkable statistic back to its
+appearance before believing it.
+
+## Two more problems to expect
 
 **Minutes are missing for roughly half of all appearances.** The store also
 records `carries_per_minute`, from which minutes can be recovered by dividing

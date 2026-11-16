@@ -1,6 +1,6 @@
 # 3. Which scoring system to target
 
-- **Status:** open, shapes the projection and the constraints
+- **Status:** accepted, this project's own scoring system
 - **Date:** 2026-11-16
 
 ## Context
@@ -43,19 +43,41 @@ against a rules object without knowing which game fills it in.
 
 ## Decision
 
-Not yet made.
+This project defines its own scoring system, in `src/rules.py` as a frozen
+`Rules` object covering squad size, budget, position quotas, club cap,
+transfer allowance, captain multiplier and the points awarded per event.
 
-The rules will live in one place as a configuration object, covering squad
-size, budget, position quotas, club cap, transfer allowance, captain
-multiplier and the points awarded per event. A default ruleset ships so the
-project runs, and it is clearly marked as a placeholder rather than any
-particular game's rules.
+The point values were not invented. They were chosen against the real
+distribution of events across 18 499 league appearances, with the explicit
+aim that every position be worth picking. The tackle value is the lever that
+balances forwards against backs: at one point per tackle the best position
+outscores the worst by 2.5 times, at one and a half by 2.0. Raising try
+assists and turnovers on top of that moved the ratio by 0.01, so the simpler
+values were kept.
+
+The squad is a real rugby fifteen: two props, a hooker, two locks, three
+loose forwards, a scrum half, a fly half, two centres and a back three, with
+a cap of three players from any one club.
+
+Scoring is per appearance rather than per minute. A player who comes on for
+twenty minutes accumulates fewer events and so scores less, with no minutes
+adjustment needed. This also avoids the trap that caught RugbyBox, where a
+per-minute measure rewarded players for barely playing.
 
 ## Consequences
 
-Nothing is blocked while this is open, as long as no scoring rule is
-hard-coded anywhere outside the rules object.
+No external dependency. The rules sit in version control where they can be
+tested, prices can be modelled from statistics already held, and the whole
+thing can be demonstrated at any time of year against historical seasons.
 
-When the choice is made, confirming the default ruleset against the real
-rules is a small, well-defined job. Discovering a hard-coded rule somewhere
-in the projection code at that point would not be.
+Nobody can use this to play a real game. It is a tool that demonstrates the
+method, not a weekly companion to a running competition. That is the trade
+accepted here.
+
+Pointing the project at a real game later means writing a second `Rules`
+instance and solving the price problem. Nothing else should need to change,
+which is why no scoring rule may be hard-coded outside the rules object.
+
+Props score least and the back three most, by about two to one. This is
+realistic and self-correcting, because prices are modelled from projected
+points, so a low-scoring prop is a cheap prop.

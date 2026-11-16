@@ -31,11 +31,16 @@ known solutions.
 | Part | State |
 |---|---|
 | Match data from `rugbydata` | working, carried over from RugbyBox |
-| Scoring rules | drafted, needs confirming against a real game |
-| Player prices | **unsolved**, see `docs/decisions/0002-price-source.md` |
+| Scoring rules | settled, tuned against 18 499 real appearances |
+| Data quality guards | specified, not yet implemented |
+| Player prices | settled in principle, modelled from projected points |
 | Points projection | not started |
 | Optimiser | not started |
 | Interface | not started |
+
+This project uses **its own scoring system**, not any published game's. It is
+a tool for demonstrating the method, not a companion to a real competition,
+and the squads it picks are not advice for one.
 
 ## Running it
 
