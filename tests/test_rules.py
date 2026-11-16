@@ -70,7 +70,16 @@ def test_the_default_is_a_legal_rugby_fifteen():
 
 def test_the_default_rewards_scoring_more_than_anything_else():
     assert DEFAULT.points["tries"] > DEFAULT.points["try_assists"]
-    assert DEFAULT.points["try_assists"] > DEFAULT.points["turnovers_won"]
+    assert DEFAULT.points["try_assists"] > DEFAULT.points["tackles_made"]
+    assert DEFAULT.points["tries"] > max(
+        v for k, v in DEFAULT.points.items() if k != "tries"
+    )
+
+
+def test_the_corrupted_columns_are_not_scored():
+    """line_breaks and turnovers_won hold copies of other columns."""
+    assert "line_breaks" not in DEFAULT.points
+    assert "turnovers_won" not in DEFAULT.points
 
 
 def test_indiscipline_costs_points():
@@ -95,8 +104,8 @@ def test_scoring_adds_up_by_hand():
     row.loc[0, "metres_carried"] = 50
     row.loc[0, "yellow_cards"] = 1
 
-    #  2 appearance + 2*10 tries + 10*1.5 tackles + 50*0.1 metres - 5 card
-    expected = 2 + 20 + 15 + 5 - 5
+    #  2 appearance + 2*10 tries + 10*2 tackles + 50*0.1 metres - 5 card
+    expected = 2 + 20 + 20 + 5 - 5
     assert DEFAULT.score(row).iloc[0] == pytest.approx(expected)
 
 
@@ -109,13 +118,13 @@ def test_missing_event_counts_are_treated_as_zero():
     row = pd.DataFrame([{e: 0.0 for e in EVENTS}])
     row.loc[0, "tries"] = None
     row.loc[0, "tackles_made"] = 4
-    assert DEFAULT.score(row).iloc[0] == pytest.approx(2 + 4 * 1.5)
+    assert DEFAULT.score(row).iloc[0] == pytest.approx(2 + 4 * 2.0)
 
 
 def test_a_missing_column_is_an_error_not_a_silent_zero():
     """A scoring rule that quietly stops applying is the worst failure mode."""
-    row = pd.DataFrame([{e: 0.0 for e in EVENTS}]).drop(columns=["turnovers_won"])
-    with pytest.raises(KeyError, match="turnovers_won"):
+    row = pd.DataFrame([{e: 0.0 for e in EVENTS}]).drop(columns=["tackles_made"])
+    with pytest.raises(KeyError, match="tackles_made"):
         DEFAULT.score(row)
 
 

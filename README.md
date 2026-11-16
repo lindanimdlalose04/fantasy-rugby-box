@@ -31,8 +31,9 @@ known solutions.
 | Part | State |
 |---|---|
 | Match data from `rugbydata` | working, carried over from RugbyBox |
-| Scoring rules | settled, tuned against 18 499 real appearances |
-| Data quality guards | specified, not yet implemented |
+| Fetch and clean pipeline | working, 4 077 appearances across 93 fixtures |
+| Data quality guards | working, and they found two unusable columns |
+| Scoring rules | settled, tuned against 3 821 real appearances |
 | Player prices | settled in principle, modelled from projected points |
 | Points projection | not started |
 | Optimiser | not started |
@@ -48,6 +49,15 @@ Requires Python 3.11+.
 
     python -m venv .venv
     .venv\Scripts\pip install -r requirements.txt
+
+Then, from the project root:
+
+    python src/01_fetch.py     # every player in the competition (~15 min cold)
+    python src/02_clean.py     # the appearance table, with the quality guards
+
+Player files are cached, so a re-run only fetches what is missing.
+
+    .venv\Scripts\pytest       # add --network to also read the live store
 
 ## Documentation
 

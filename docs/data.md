@@ -46,38 +46,43 @@ What the store does **not** hold: fantasy prices, fantasy points, ownership
 percentages, or an injury list. See
 `docs/decisions/0002-where-player-prices-come-from.md`.
 
-## Corrupted fixtures, and how they are rejected
+## Two columns you cannot use
 
-Two corruptions were found in the source while setting the scoring values.
-Neither is announced anywhere, and both inflate exactly the statistics a
-fantasy scoring system pays most for. The cleaning stage rejects whole
-fixtures on two signatures, and reports how many each rule caught.
+**`line_breaks` and `turnovers_won` are corrupted and are not scored.**
 
-**A count column holding a per-minute rate.** 57 appearances across 7
-fixtures. The tell is a non-integer value in a count column, for example
-`tackles_made` of 0.08. On those fixtures the try counts are also nonsense:
-one player credited with 36 tries alongside one metre carried.
+Across this competition's 4 077 appearances, 84% of non-zero `line_breaks`
+values are an exact copy of another column, usually `carries`.
+`turnovers_won` is almost as bad. Only 1 fixture in 93 is free of it. The
+columns do not hold what they claim to.
 
-**One column copied over another.** 153 fixtures where more than a quarter of
-appearances have `line_breaks` exactly equal to `turnovers_won` at a non-zero
-value. Across the whole dataset 22.5% of non-zero pairs are identical, far
-above what independence would give, and the values run implausibly high: 24
-of each in one appearance against a 99th percentile of 10 for both.
+The cleaning stage measures this on every run, by dividing the observed rate
+at which two columns hold identical values by the rate their own
+distributions would give if they were independent, ignoring rows where both
+are zero. Ordinary related statistics score between 1.0 and 1.6 on that
+measure. The corrupted columns score above 7. If a column the scoring system
+uses ever crosses 3.0, the pipeline stops rather than paying out points for
+data that records nothing.
 
-The second is the more dangerous. It is not obviously wrong on inspection,
-and because both columns score 4 points each, one corrupted value is paid for
-twice. Before the guard, the highest scoring appearance in the data was a
-player credited with 24 line breaks and 24 turnovers, worth 192 of his 253
-points.
+The cost of this is that the breakdown is invisible: a jackaling openside
+earns nothing for it. Tackles are the only clean defensive statistic left.
 
-Together these reject about 7% of appearances. Removing them tightened the
-spread of points within each position from 0.72 to 0.85 of the mean down to
-0.54 to 0.71, which is what you would expect if the rejected rows were noise.
-See `docs/decisions/0004-guarding-against-corrupted-source-rows.md`.
+**Fixtures holding rates where counts belong.** 57 appearances across 7
+fixtures in the wider store, identifiable by a non-integer count such as
+`tackles_made` of 0.08. On those fixtures one player is credited with 36
+tries alongside one metre carried. None fall inside the current window, but
+the guard stays because the window will move.
 
-These are heuristics fitted to two corruptions that happen to be visible.
-There may be others that are not. Trace any remarkable statistic back to its
-appearance before believing it.
+**Plausibility caps** run last and are reported whenever they bind. They
+caught one appearance recording two red cards, which cannot happen. They also
+caught four players beating 13 to 16 defenders, which turned out to be
+genuine, so the cap was raised rather than the data discarded.
+
+See `docs/decisions/0004-guarding-against-corrupted-source-rows.md` for how
+this was found, including the first diagnosis that was wrong.
+
+These checks find columns duplicated from other columns in the same row. A
+column corrupted some other way would pass them. Trace any remarkable
+statistic back to its appearance before believing it.
 
 ## Two more problems to expect
 

@@ -117,24 +117,35 @@ class Rules:
 
 # The project's own scoring system.
 #
-# Point values were set against the real distribution of events across 18 499
-# league appearances, after removing the two sets of corrupted fixtures
-# described in docs/data.md. The tackle value is the lever that balances
-# forwards against backs: at one point per tackle the best position outscores
-# the worst by 2.5 times, and at one and a half by 2.0. Raising try assists
-# and turnovers further changed the ratio by 0.01, so the simpler values were
-# kept.
+# Two events a rugby fantasy game would normally reward are missing here:
+# line breaks and turnovers won. Both columns are corrupted in the source.
+# Across this competition, 84% of non-zero line break values are an exact
+# copy of another column, usually carries, and turnovers won is almost as
+# bad. Scoring either would have paid out for data that is not a record of
+# anything. See docs/decisions/0004 and docs/data.md.
 #
-# The choice was checked against both the contaminated and the cleaned data.
-# The ratio moved from 2.09 to 2.04 and the order of the positions did not
-# change at all, so these values do not depend on that cleaning having been
-# done correctly.
+# Losing them costs the breakdown entirely, which is a real gap: a jackaling
+# openside is invisible to this scoring system. Tackles are the only clean
+# defensive statistic left, so they carry that weight instead.
 #
-# Props still score least and the back three most. That is realistic and it
-# corrects itself, because prices are modelled from projected points, so a
-# low-scoring prop is a cheap prop. What matters is that the spread within
-# each position stays wide, between 0.54 and 0.71 of the mean on clean data,
-# since that is what makes one pick better than another.
+# Point values were set against the real distribution of events across 3 821
+# appearances in the competition. The tackle value is the lever that balances
+# forwards against backs:
+#
+#     tackle worth 1.0   best:worst position ratio 2.46
+#     tackle worth 1.5                             2.11
+#     tackle worth 2.0                             1.91   <- chosen
+#     tackle worth 2.5                             1.78
+#
+# Two and a half flattens the spread further but makes a fantasy rugby team
+# a tackle-counting exercise, which is not the game. Two keeps every position
+# worth picking while leaving tries the biggest prize.
+#
+# Props still score least and the back three and fly halves most. That is
+# realistic and it corrects itself, because prices are modelled from
+# projected points, so a low-scoring prop is a cheap prop. What matters is
+# that the spread within each position stays wide, between 0.51 and 0.71 of
+# the mean, since that is what makes one pick better than another.
 #
 # Scoring per appearance rather than per minute is deliberate. A player who
 # comes on for twenty minutes accumulates fewer events and so scores less,
@@ -152,12 +163,10 @@ DEFAULT = Rules(
         "drop_goals_converted": 5.0,
         # carrying
         "metres_carried": 0.1,          # a point per ten metres
-        "line_breaks": 4.0,
         "defenders_beaten": 1.0,
         "offloads": 2.0,
-        # defending and the breakdown
-        "tackles_made": 1.5,
-        "turnovers_won": 4.0,
+        # defending
+        "tackles_made": 2.0,
         # indiscipline
         "penalties_conceded": -2.0,
         "yellow_cards": -5.0,
