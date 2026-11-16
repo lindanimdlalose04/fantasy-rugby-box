@@ -30,6 +30,12 @@ release also records the date of the data snapshot it was built against.
   appearances across 93 fixtures with a recorded data snapshot date
 - A column integrity check that stops the pipeline if any column being
   scored looks like a copy of another
+- `src/03_project.py`, expected points per player, kept as three separate
+  numbers: a rate shrunk toward its position baseline, an availability
+  share, and the two multiplied. The shrinkage point is estimated from the
+  data at 4.3 appearances, from a split-half reliability of 0.57.
+- `src/04_price.py`, modelled prices on a convex curve, with checks on every
+  run that the budget binds and that price and projection do not cancel
 
 ### Found
 

@@ -34,8 +34,8 @@ known solutions.
 | Fetch and clean pipeline | working, 4 077 appearances across 93 fixtures |
 | Data quality guards | working, and they found two unusable columns |
 | Scoring rules | settled, tuned against 3 821 real appearances |
-| Player prices | settled in principle, modelled from projected points |
-| Points projection | not started |
+| Points projection | working, 373 players, shrunk by evidence |
+| Player prices | working, modelled, and the budget binds |
 | Optimiser | not started |
 | Interface | not started |
 
@@ -54,6 +54,8 @@ Then, from the project root:
 
     python src/01_fetch.py     # every player in the competition (~15 min cold)
     python src/02_clean.py     # the appearance table, with the quality guards
+    python src/03_project.py   # expected points per player
+    python src/04_price.py     # modelled prices, and the budget checks
 
 Player files are cached, so a re-run only fetches what is missing.
 

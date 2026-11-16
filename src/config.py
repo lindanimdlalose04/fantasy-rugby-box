@@ -124,3 +124,57 @@ FULL_MATCH_MINUTES = 80
 # Appearances a player needs before his record is worth projecting from.
 # Below this he is carried in the data but not offered for selection.
 MIN_APPEARANCES = 2
+
+# --- projection -----------------------------------------------------------
+# A mean taken over two appearances is mostly noise, and ranking on it puts
+# fringe players at the top. Every projection is therefore shrunk toward what
+# a typical player in that position manages, in proportion to the evidence
+# behind it:
+#
+#     weight = appearances / (appearances + K)
+#
+# K is the number of appearances at which a player's record is half signal
+# and half noise. It is estimated from the data by split-half reliability
+# rather than asserted. The value below is the fallback when that estimate
+# cannot be made.
+
+ESTIMATE_STABILISATION = True
+STABILISATION_APPEARANCES = 6
+SPLIT_REPEATS = 200
+SPLIT_SEED = 20261116
+
+# Appearances a player needs before he helps define his position's baseline.
+# The baseline is what thin records are shrunk toward, so it must not be set
+# by the same thin records it is correcting.
+MIN_APPEARANCES_FOR_BASELINE = 6
+
+# --- pricing --------------------------------------------------------------
+# Prices are modelled, because this project uses its own scoring system and
+# so has no published price list. See decision 0002.
+#
+# The shape matters more than the scale. Price has to rise faster than
+# points, or the best players are affordable and the budget never binds,
+# which would make the optimiser a ranking exercise. PRICE_CURVE above one
+# makes the mapping convex, so each extra projected point costs more than
+# the last.
+
+# The curve was chosen by sweeping it against three things: a cheapest legal
+# squad well under budget, a strongest squad well over it, and enough spread
+# in value for money among the better players that the choice between them
+# matters. At a budget of 100:
+#
+#     curve   cheapest   median squad   strongest   spread in value
+#       1.0       64.5          118.4       196.7             34.8%
+#       1.6       60.6           92.3       183.5             12.3%
+#       2.2       60.1           78.4       172.4             19.4%
+#       3.0       60.0           69.1       160.1             34.0%   <- chosen
+#       4.0       60.0           64.1       147.7             46.0%
+#
+# At 1.6 the price and the projection very nearly cancel, leaving every good
+# player the same value for money and the optimiser with little to choose
+# between them. At 3.0 a median squad costs 69, so roughly a third of the
+# budget is left to spend on upgrades, which is the decision worth modelling.
+# Going further flattens the squad into cheap filler plus two stars.
+PRICE_MIN = 4.0
+PRICE_MAX = 15.0
+PRICE_CURVE = 3.0
