@@ -1,0 +1,27 @@
+# Per-player fetch cache. Reproducible by re-running the fetch.
+data/raw/players/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Solver working files
+*.lp
+*.mps
+*.sol
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Office lock files
+~$*

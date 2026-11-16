@@ -1,0 +1,17 @@
+# Fantasy Rugby Box. Python 3.11+.
+#
+#   python -m venv .venv
+#   .venv\Scripts\pip install -r requirements.txt
+#
+# Versions are pinned because results depend on them, the solver especially.
+
+pandas==2.3.3
+numpy==2.4.6
+pyarrow==19.0.0
+
+# Integer programming. PuLP 3 changed the solver interface, so the 2.x line
+# is pinned deliberately.
+PuLP==2.9.0
+
+# Tests.
+pytest==9.2.0
